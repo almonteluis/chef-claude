@@ -7,10 +7,24 @@ export default function Main() {
   const [ingredients, setIngredients] = React.useState([]);
   const [recipe, setRecipe] = React.useState("");
   const [newIngredient, setNewIngredient] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
 
   async function getRecipe() {
-    const recipeMarkdown = await getRecipeFromChefClaude(ingredients);
-    setRecipe(recipeMarkdown);
+    setIsLoading(true);
+    try {
+      const recipeMarkdown = await getRecipeFromChefClaude(ingredients);
+      setRecipe(recipeMarkdown);
+      // Smooth scroll to recipe section
+      document.getElementById("recipe-section")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    } catch (error) {
+      console.error("Failed to get recipe:", error);
+      // Optionally add error handling UI here
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleSubmit(event) {
@@ -47,7 +61,11 @@ export default function Main() {
       </form>
 
       {ingredients.length > 0 && (
-        <IngredientsList ingredients={ingredients} getRecipe={getRecipe} />
+        <IngredientsList
+          ingredients={ingredients}
+          getRecipe={getRecipe}
+          isLoading={isLoading}
+        />
       )}
 
       {recipe && <ClaudeRecipe recipe={recipe} />}
