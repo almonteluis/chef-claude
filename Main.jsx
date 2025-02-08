@@ -4,35 +4,46 @@ import ClaudeRecipe from "./components/ClaudeRecipe";
 import { getRecipeFromChefClaude, getRecipeFromMistral } from "./ai";
 
 export default function Main() {
-  const [ingredients, setIngredients] = React.useState([
-    "chicken",
-    "all the main spices",
-    "corn",
-    "heavy cream",
-    "pasta",
-  ]);
+  const [ingredients, setIngredients] = React.useState([]);
   const [recipe, setRecipe] = React.useState("");
+  const [newIngredient, setNewIngredient] = React.useState("");
 
   async function getRecipe() {
     const recipeMarkdown = await getRecipeFromChefClaude(ingredients);
     setRecipe(recipeMarkdown);
   }
 
-  function addIngredient(formData) {
-    const newIngredient = formData.get("ingredient");
-    setIngredients((prevIngredients) => [...prevIngredients, newIngredient]);
+  function handleSubmit(event) {
+    // Prevent the default form submission behavior
+    event.preventDefault();
+
+    // Only add ingredient if there's actually text input
+    if (newIngredient.trim()) {
+      setIngredients((prevIngredients) => [
+        ...prevIngredients,
+        newIngredient.trim(),
+      ]);
+      // Clear the input after adding
+      setNewIngredient("");
+    }
+  }
+
+  function handleInputChange(event) {
+    setNewIngredient(event.target.value);
   }
 
   return (
     <main>
-      <form action={addIngredient} className="add-ingredient-form">
+      <form onSubmit={handleSubmit} className="add-ingredient-form">
         <input
           type="text"
           placeholder="e.g. oregano"
           aria-label="Add ingredient"
           name="ingredient"
+          value={newIngredient}
+          onChange={handleInputChange}
         />
-        <button>Add ingredient</button>
+        <button type="submit">Add ingredient</button>
       </form>
 
       {ingredients.length > 0 && (
